@@ -15,18 +15,19 @@ func TestDecisionApi(t *testing.T) {
 	placement := model.NewPlacement()
 	placement.AdTypes = []int{5}
 
-	req := model.NewDecisionRequest()
-	req.Placements = []model.Placement{placement}
-	req.User = model.NewUser("abc")
+	request := model.NewDecisionRequest()
+	request.Placements = []model.Placement{placement}
+	request.Keywords = []string{"keyword1", "keyword2"}
+	request.User = model.NewUser("abc")
 
 	decisions := client.Decisions()
-	res := decisions.Get(req)
+	response := decisions.Get(request)
 
-	if res.User.Key != "abc" {
-		t.Errorf("Invalid userKey, got: %s, want: %s", res.User.Key, "abc")
+	if response.User.Key != "abc" {
+		t.Errorf("Invalid userKey, got: %s, want: %s", response.User.Key, "abc")
 	}
 
-	decision := res.Decisions["div0"]
+	decision := response.Decisions["div0"]
 
 	if *decision.AdId != 2104402 {
 		t.Errorf("Invalid adId, got: %d, want: %d", *decision.AdId, 2104402)
