@@ -51,6 +51,8 @@ func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOption
 
 		if len(opt.UserAgent) > 0 {
 			c.apiClient.requestHeaders["User-Agent"] = opt.UserAgent
+		} else {
+			c.apiClient.requestHeaders["User-Agent"] = "OpenAPI-Generator/1.0/go"
 		}
 
 		if opt.IncludeExplanation {
@@ -59,6 +61,22 @@ func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOption
 	}
 
 	res := c.apiClient.GetDecisions(req)
+
+	return res
+}
+
+func (c *PixelClient) Fire(opts PixelFireOptions, additionalOpts ...AdditionalOptions) model.PixelFireResponse {
+	if len(additionalOpts) > 0 {
+		opt := additionalOpts[0]
+
+		if len(opt.UserAgent) > 0 {
+			c.apiClient.requestHeaders["User-Agent"] = opt.UserAgent
+		} else {
+			c.apiClient.requestHeaders["User-Agent"] = "OpenAPI-Generator/1.0/go"
+		}
+	}
+
+	res := c.apiClient.FirePixel(opts)
 
 	return res
 }
@@ -86,6 +104,10 @@ func NewClient(opts ClientOptions) Client {
 		opts.SiteId,
 	}
 
+	client.pixelClient = PixelClient{
+		ApiClient{path, opts.ApiKey, requestHeaders},
+	}
+
 	return client
 }
 
@@ -97,6 +119,6 @@ func (c *Client) UserDb() UserDbClient {
 	return c.userDbClient
 }
 
-func (c *Client) PixelClient() PixelClient {
+func (c *Client) Pixels() PixelClient {
 	return c.pixelClient
 }

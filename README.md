@@ -52,3 +52,19 @@ func main() {
 	fmt.Println(string(s))
 }
 ```
+
+### Recording Impression & Clicks
+
+Use with the fetch ad example above.
+
+```go
+// Impression pixel; fire when user sees the ad
+pixels := client.Pixels()
+impResponse := pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
+
+// Click pixel; fire when user clicks on the ad
+// status: HTTP status code
+// location: click target URL
+clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+fmt.Printf("Fired! status: %d location: %s\n", clickResponse.StatusCode, clickResponse.Location)
+```

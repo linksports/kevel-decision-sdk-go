@@ -90,4 +90,22 @@ func TestDecisionApi(t *testing.T) {
 	if content.Data["fileName"] != "fdb7324f69c6420db2947dba83e15868.png" {
 		t.Errorf("Invalid fileName, got: %s, want: %s", content.Data["fileName"], "fdb7324f69c6420db2947dba83e15868.png")
 	}
+
+	pixels := client.Pixels()
+	impResponse := pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
+
+	if impResponse.StatusCode != 200 {
+		t.Errorf("Invalid statusCode, got: %d, want: %d", impResponse.StatusCode, 200)
+	}
+
+	clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+
+	if clickResponse.StatusCode != 302 {
+		t.Errorf("Invalid statusCode, got: %d, want: %d", clickResponse.StatusCode, 200)
+	}
+
+	if clickResponse.Location != "https://kevel.co" {
+		t.Errorf("Invalid location, got: %s, want: %s", clickResponse.Location, "https://kevel.co")
+
+	}
 }
