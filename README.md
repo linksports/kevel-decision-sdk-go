@@ -135,3 +135,21 @@ func main() {
 	userDb.Forget("abc")
 }
 ```
+
+## Documentation
+
+- [Kevel API Documentation](https://dev.kevel.co/reference)
+- [Kevel User & Developer Documentation](https://dev.kevel.co/docs)
+
+## Contributing
+
+### Reporting Issues
+
+- For bug fixes and improvements to this SDK please use Github to [open an issue](https://github.com/linksports/kevel-decision-sdk-go/issues) or send us a [pull request](https://github.com/linksports/kevel-decision-sdk-go/pulls).
+
+### Building / Running Tests
+
+```
+go build
+go test
+```
