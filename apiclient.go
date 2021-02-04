@@ -1,4 +1,4 @@
-package client
+package kevel
 
 import (
 	"bytes"
@@ -20,18 +20,18 @@ type ApiClient struct {
 
 func (c *ApiClient) GetDecisions(req model.DecisionRequest) model.DecisionResponse {
 	url := fmt.Sprintf("%s%s", c.basePath, "/api/v2")
-	values, _ := json.Marshal(req)
-	res := c.request("POST", url, &values)
+	body, _ := json.Marshal(req)
+	res := c.request("POST", url, &body)
 
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ = ioutil.ReadAll(res.Body)
 	log.Println(string(body))
 
-	var d model.DecisionResponse
-	json.Unmarshal(body, &d)
+	var response model.DecisionResponse
+	json.Unmarshal(body, &response)
 
-	return d
+	return response
 }
 
 func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {

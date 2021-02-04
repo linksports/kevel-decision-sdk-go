@@ -1,4 +1,4 @@
-package client
+package kevel
 
 type ClientOptions struct {
 	NetworkId int

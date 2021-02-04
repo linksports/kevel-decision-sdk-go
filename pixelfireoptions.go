@@ -1,4 +1,4 @@
-package client
+package kevel
 
 type PixelFireOptions struct {
 	Url               string

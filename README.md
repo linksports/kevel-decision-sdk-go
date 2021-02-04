@@ -28,14 +28,15 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/linksports/kevel-decision-sdk-go"
 	"github.com/linksports/kevel-decision-sdk-go/model"
 )
 
 func main() {
 	// Demo network, site, and ad type IDs; find your own via the Kevel UI!
-	opts := NewClientOptions(23)
+	opts := kevel.NewClientOptions(23)
 	opts.SiteId = 667480
-	client := NewClient(opts)
+	client := kevel.NewClient(opts)
 
 	placement := model.NewPlacement()
 	placement.AdTypes = []int{5}
@@ -60,11 +61,11 @@ Use with the fetch ad example above.
 ```go
 // Impression pixel; fire when user sees the ad
 pixels := client.Pixels()
-impResponse := pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
+pixels.Fire(NewPixelFireOptions(decisions.ImpressionUrl))
 
 // Click pixel; fire when user clicks on the ad
 // status: HTTP status code
 // location: click target URL
-clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+clickResponse := pixels.Fire(NewPixelFireOptions(decisions.ClickUrl))
 fmt.Printf("Fired! status: %d location: %s\n", clickResponse.StatusCode, clickResponse.Location)
 ```
