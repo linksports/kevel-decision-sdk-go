@@ -101,7 +101,7 @@ func TestDecisionApi(t *testing.T) {
 	clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
 
 	if clickResponse.StatusCode != 302 {
-		t.Errorf("Invalid statusCode, got: %d, want: %d", clickResponse.StatusCode, 200)
+		t.Errorf("Invalid statusCode, got: %d, want: %d", clickResponse.StatusCode, 302)
 	}
 
 	if clickResponse.Location != "https://kevel.co" {
