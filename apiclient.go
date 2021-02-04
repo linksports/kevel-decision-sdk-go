@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/linksports/kevel-decision-sdk-go/model"
 )
@@ -19,9 +20,9 @@ type ApiClient struct {
 }
 
 func (c *ApiClient) GetDecisions(req model.DecisionRequest) model.DecisionResponse {
-	url := fmt.Sprintf("%s%s", c.basePath, "/api/v2")
+	urlStr := fmt.Sprintf("%s/api/v2", c.basePath)
 	body, _ := json.Marshal(req)
-	res := c.request("POST", url, &body)
+	res := c.request("POST", urlStr, &body)
 
 	defer res.Body.Close()
 
@@ -58,7 +59,26 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
 	return model.PixelFireResponse{res.StatusCode, location}
 }
 
-func (c *ApiClient) request(method, url string, body *[]byte) *http.Response {
+func (c *ApiClient) ReadUserDb(userKey string, networkId int) model.UserRecord {
+	values := url.Values{
+		"userKey": {userKey},
+	}
+	urlStr := fmt.Sprintf("%s/udb/%d/read?%s", c.basePath, networkId, values.Encode())
+
+	res := c.request("GET", urlStr, nil)
+
+	defer res.Body.Close()
+
+	body, _ := ioutil.ReadAll(res.Body)
+	log.Println(string(body))
+
+	var record model.UserRecord
+	json.Unmarshal(body, &record)
+
+	return record
+}
+
+func (c *ApiClient) request(method, urlStr string, body *[]byte) *http.Response {
 	var reqBody io.Reader
 
 	if body != nil {
@@ -68,7 +88,7 @@ func (c *ApiClient) request(method, url string, body *[]byte) *http.Response {
 
 	req, _ := http.NewRequest(
 		method,
-		url,
+		urlStr,
 		reqBody,
 	)
 

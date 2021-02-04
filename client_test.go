@@ -109,3 +109,15 @@ func TestDecisionApi(t *testing.T) {
 
 	}
 }
+
+func TestUserDb(t *testing.T) {
+	opts := NewClientOptions(23) // networkId
+	client := NewClient(opts)
+
+	userDb := client.UserDb()
+	record := userDb.Read("abc")
+
+	if record.Key != "abc" {
+		t.Errorf("Invalid userKey, got: %s, want: %s", record.Key, "abc")
+	}
+}

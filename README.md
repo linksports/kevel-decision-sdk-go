@@ -71,3 +71,28 @@ pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
 clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
 fmt.Printf("Fired! status: %d location: %s\n", clickResponse.StatusCode, clickResponse.Location)
 ```
+
+### UserDB: Reading User Record
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/linksports/kevel-decision-sdk-go"
+)
+
+func main() {
+	// Demo network ID; find your own via the Adzerk UI!
+	opts := kevel.NewClientOptions(23)
+	client := kevel.NewClient(opts)
+
+	userDb := client.UserDb()
+	record := userDb.Read(userKey)
+
+	s, _ := json.MarshalIndent(record, "", "  ")
+	fmt.Println(string(s))
+}
+```
