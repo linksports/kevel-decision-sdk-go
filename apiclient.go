@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/linksports/kevel-decision-sdk-go/model"
 )
@@ -19,15 +19,28 @@ type ApiClient struct {
 	requestHeaders map[string]interface{}
 }
 
+func NewApiClient(path string, apiKey ...string) ApiClient {
+	apiClient := ApiClient{}
+	apiClient.basePath = path
+
+	if len(apiKey) > 0 {
+		apiClient.apiKey = apiKey[0]
+	}
+
+	apiClient.requestHeaders = map[string]interface{}{
+		"User-Agent": "OpenAPI-Generator/1.0/go",
+	}
+
+	return apiClient
+}
+
 func (c *ApiClient) GetDecisions(req model.DecisionRequest) model.DecisionResponse {
-	urlStr := fmt.Sprintf("%s/api/v2", c.basePath)
 	body, _ := json.Marshal(req)
-	res := c.request("POST", urlStr, &body)
+	res := c.request("POST", c.basePath, &body)
 
 	defer res.Body.Close()
 
 	body, _ = ioutil.ReadAll(res.Body)
-	log.Println(string(body))
 
 	var response model.DecisionResponse
 	json.Unmarshal(body, &response)
@@ -59,18 +72,85 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
 	return model.PixelFireResponse{res.StatusCode, location}
 }
 
-func (c *ApiClient) ReadUserDb(userKey string, networkId int) model.UserRecord {
+func (c *ApiClient) SetCustomProperties(networkId int, userKey string, props map[string]interface{}) {
+	urlStr := fmt.Sprintf("%s/%d/custom", c.basePath, networkId)
+	body, _ := json.Marshal(props)
+	c.request("POST", urlStr, &body)
+}
+
+func (c *ApiClient) AddInterest(networkId int, userKey string, interest string) {
+	values := url.Values{
+		"userKey":  {userKey},
+		"interest": {interest},
+	}
+	urlStr := fmt.Sprintf("%s/%d/interest/i.gif?%s", c.basePath, networkId, values.Encode())
+	c.request("GET", urlStr, nil)
+}
+
+func (c *ApiClient) AddRetargetingSegment(networkId int, userKey string, advertiserId, retargetingSegmentId int) {
 	values := url.Values{
 		"userKey": {userKey},
 	}
-	urlStr := fmt.Sprintf("%s/udb/%d/read?%s", c.basePath, networkId, values.Encode())
+	urlStr := fmt.Sprintf(
+		"%s/%d/rt/%d/%d/i.gif?%s",
+		c.basePath, networkId, advertiserId, retargetingSegmentId, values.Encode())
+	c.request("GET", urlStr, nil)
+}
+
+func (c *ApiClient) Forget(networkId int, userKey string) {
+	values := url.Values{
+		"userKey": {userKey},
+	}
+	urlStr := fmt.Sprintf("%s/%d?%s", c.basePath, networkId, values.Encode())
+
+	c.request("DELETE", urlStr, nil)
+}
+
+func (c *ApiClient) GdprConsent(networkId int, consentRequest model.ConsentRequest) {
+	urlStr := fmt.Sprintf("%s/%d/consent", c.basePath, networkId)
+	body, _ := json.Marshal(consentRequest)
+	c.request("POST", urlStr, &body)
+
+}
+
+func (c *ApiClient) IpOverride(networkId int, userKey, ip string) {
+	values := url.Values{
+		"userKey": {userKey},
+		"ip":      {ip},
+	}
+	urlStr := fmt.Sprintf("%s/%d/ip/i.gif?%s", c.basePath, networkId, values.Encode())
+	c.request("GET", urlStr, nil)
+}
+
+func (c *ApiClient) MatchUser(networkId int, userKey string, partnerId, userId int) {
+	values := url.Values{
+		"userKey":   {userKey},
+		"partnerId": {strconv.Itoa(partnerId)},
+		"userId":    {strconv.Itoa(userId)},
+	}
+	urlStr := fmt.Sprintf("%s/%d/sync/i.gif?%s", c.basePath, networkId, values.Encode())
+	c.request("GET", urlStr, nil)
+}
+
+func (c *ApiClient) OptOut(networkId int, userKey string) {
+	values := url.Values{
+		"userKey": {userKey},
+	}
+	urlStr := fmt.Sprintf("%s/%d/optout/i.gif?%s", c.basePath, networkId, values.Encode())
+	c.request("GET", urlStr, nil)
+}
+
+func (c *ApiClient) ReadUser(networkId int, userKey string) model.UserRecord {
+	values := url.Values{
+		"userKey": {userKey},
+	}
+	urlStr := fmt.Sprintf("%s/%d/read?%s", c.basePath, networkId, values.Encode())
 
 	res := c.request("GET", urlStr, nil)
 
 	defer res.Body.Close()
 
 	body, _ := ioutil.ReadAll(res.Body)
-	log.Println(string(body))
 
 	var record model.UserRecord
 	json.Unmarshal(body, &record)
@@ -82,7 +162,6 @@ func (c *ApiClient) request(method, urlStr string, body *[]byte) *http.Response 
 	var reqBody io.Reader
 
 	if body != nil {
-		log.Println(string(*body))
 		reqBody = bytes.NewBuffer(*body)
 	}
 
@@ -95,7 +174,6 @@ func (c *ApiClient) request(method, urlStr string, body *[]byte) *http.Response 
 	if c.apiKey != "" {
 		req.Header.Set("X-Adzerk-ApiKey", c.apiKey)
 	}
-	req.Header.Set("Content-Type", "application/json")
 
 	for k, v := range c.requestHeaders {
 		req.Header.Set(k, v.(string))

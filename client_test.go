@@ -120,4 +120,12 @@ func TestUserDb(t *testing.T) {
 	if record.Key != "abc" {
 		t.Errorf("Invalid userKey, got: %s, want: %s", record.Key, "abc")
 	}
+
+	props := map[string]interface{}{
+		"favoriteColor":  "blue",
+		"favoriteNumber": 42,
+		"favoriteFoods":  []string{"strawberries", "chocolate"},
+	}
+
+	userDb.SetCustomProperties("abc", props)
 }

@@ -7,10 +7,17 @@ import (
 )
 
 type DecisionClient struct {
-	path      string
-	apiClient ApiClient
 	networkId int
 	siteId    int
+	apiClient ApiClient
+}
+
+func NewDecisionClient(networkId, siteId int, path string) DecisionClient {
+	return DecisionClient{
+		networkId,
+		siteId,
+		NewApiClient(path),
+	}
 }
 
 func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOptions) model.DecisionResponse {
@@ -37,8 +44,6 @@ func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOption
 
 		if len(opt.UserAgent) > 0 {
 			c.apiClient.requestHeaders["User-Agent"] = opt.UserAgent
-		} else {
-			c.apiClient.requestHeaders["User-Agent"] = "OpenAPI-Generator/1.0/go"
 		}
 
 		if opt.IncludeExplanation {
@@ -46,7 +51,7 @@ func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOption
 		}
 	}
 
-	res := c.apiClient.GetDecisions(req)
+	c.apiClient.requestHeaders["Content-Type"] = "application/json"
 
-	return res
+	return c.apiClient.GetDecisions(req)
 }

@@ -22,23 +22,20 @@ func NewClient(opts ClientOptions) Client {
 	path := fmt.Sprintf("%s://%s", protocol, host)
 
 	client := Client{}
-	requestHeaders := map[string]interface{}{}
 
-	client.decisionClient = DecisionClient{
-		path,
-		ApiClient{path, opts.ApiKey, requestHeaders},
+	client.decisionClient = NewDecisionClient(
 		opts.NetworkId,
 		opts.SiteId,
-	}
+		fmt.Sprintf("%s/api/v2", path),
+	)
 
-	client.userDbClient = UserDbClient{
-		ApiClient{path, opts.ApiKey, requestHeaders},
+	client.userDbClient = NewUserDbClient(
 		opts.NetworkId,
-	}
+		fmt.Sprintf("%s/udb", path),
+		opts.ApiKey,
+	)
 
-	client.pixelClient = PixelClient{
-		ApiClient{path, opts.ApiKey, requestHeaders},
-	}
+	client.pixelClient = NewPixelClient()
 
 	return client
 }

@@ -88,11 +88,50 @@ func main() {
 	// Demo network ID; find your own via the Adzerk UI!
 	opts := kevel.NewClientOptions(23)
 	client := kevel.NewClient(opts)
-
 	userDb := client.UserDb()
 	record := userDb.Read(userKey)
 
 	s, _ := json.MarshalIndent(record, "", "  ")
 	fmt.Println(string(s))
+}
+```
+
+### UserDB: Setting Custom Properties
+
+```go
+package main
+
+import "github.com/linksports/kevel-decision-sdk-go"
+
+func main() {
+	// Demo network ID; find your own via the Adzerk UI!
+	opts := kevel.NewClientOptions(23)
+	client := kevel.NewClient(opts)
+	userDb := client.UserDb()
+
+	props := map[string]interface{}{
+		"favoriteColor":  "blue",
+		"favoriteNumber": 42,
+		"favoriteFoods":  []string{"strawberries", "chocolate"},
+	}
+
+	userDb.SetCustomProperties("abc", props)
+}
+```
+
+### UserDB: Forgetting User Record
+
+```go
+package main
+
+import "github.com/linksports/kevel-decision-sdk-go"
+
+func main() {
+	// Demo network ID and API key; find your own via the Adzerk UI!
+	opts := kevel.NewClientOptions(23)
+	opts.ApiKey = "YOUR-API-KEY"
+	client := kevel.NewClient(opts)
+	userDb := client.UserDb()
+	userDb.Forget("abc")
 }
 ```

@@ -22,6 +22,5 @@ type Placement struct {
 }
 
 func NewPlacement() Placement {
-	placement := Placement{}
-	return placement
+	return Placement{}
 }
