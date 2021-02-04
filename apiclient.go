@@ -36,6 +36,7 @@ func NewApiClient(path string, apiKey ...string) ApiClient {
 
 func (c *ApiClient) GetDecisions(req model.DecisionRequest) model.DecisionResponse {
 	body, _ := json.Marshal(req)
+	c.requestHeaders["Content-Type"] = "application/json"
 	res := c.request("POST", c.basePath, &body)
 
 	defer res.Body.Close()
@@ -75,6 +76,7 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
 func (c *ApiClient) SetCustomProperties(networkId int, userKey string, props map[string]interface{}) {
 	urlStr := fmt.Sprintf("%s/%d/custom", c.basePath, networkId)
 	body, _ := json.Marshal(props)
+	c.requestHeaders["Content-Type"] = "application/json"
 	c.request("POST", urlStr, &body)
 }
 
@@ -109,6 +111,7 @@ func (c *ApiClient) Forget(networkId int, userKey string) {
 func (c *ApiClient) GdprConsent(networkId int, consentRequest model.ConsentRequest) {
 	urlStr := fmt.Sprintf("%s/%d/consent", c.basePath, networkId)
 	body, _ := json.Marshal(consentRequest)
+	c.requestHeaders["Content-Type"] = "application/json"
 	c.request("POST", urlStr, &body)
 
 }

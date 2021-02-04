@@ -47,7 +47,6 @@ func (c *UserDbClient) OptOut(userKey string, networkIds ...int) {
 }
 
 func (c *UserDbClient) Read(userKey string, networkIds ...int) model.UserRecord {
-	c.apiClient.requestHeaders["Content-Type"] = "application/json"
 	return c.apiClient.ReadUser(c.NetworkId(networkIds...), userKey)
 }
 

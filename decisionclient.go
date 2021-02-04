@@ -51,7 +51,5 @@ func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOption
 		}
 	}
 
-	c.apiClient.requestHeaders["Content-Type"] = "application/json"
-
 	return c.apiClient.GetDecisions(req)
 }
