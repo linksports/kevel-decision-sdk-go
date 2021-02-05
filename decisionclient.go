@@ -20,7 +20,7 @@ func NewDecisionClient(networkId, siteId int, path string) DecisionClient {
 	}
 }
 
-func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOptions) model.DecisionResponse {
+func (c *DecisionClient) Get(req model.DecisionRequest, opts ...AdditionalOptions) (model.DecisionResponse, error) {
 	placements := req.Placements
 
 	for i, p := range placements {

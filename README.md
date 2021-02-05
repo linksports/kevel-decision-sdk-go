@@ -47,7 +47,7 @@ func main() {
 	request.User = model.NewUser("abc")
 
 	decisions := client.Decisions()
-	response := decisions.Get(request)
+	response, _ := decisions.Get(request)
 
 	s, _ := json.MarshalIndent(response, "", "  ")
 	fmt.Println(string(s))
@@ -68,7 +68,7 @@ pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
 // Click pixel; fire when user clicks on the ad
 // status: HTTP status code
 // location: click target URL
-clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+clickResponse, _ := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
 fmt.Printf("Fired! status: %d location: %s\n", clickResponse.StatusCode, clickResponse.Location)
 ```
 
@@ -89,7 +89,7 @@ func main() {
 	opts := kevel.NewClientOptions(23)
 	client := kevel.NewClient(opts)
 	userDb := client.UserDb()
-	record := userDb.Read(userKey)
+	record, _ := userDb.Read(userKey)
 
 	s, _ := json.MarshalIndent(record, "", "  ")
 	fmt.Println(string(s))

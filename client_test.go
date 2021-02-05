@@ -7,9 +7,20 @@ import (
 	"github.com/linksports/kevel-decision-sdk-go/model"
 )
 
+const (
+	NetworkId  = 23
+	SiteId     = 667480
+	UserKey    = "abc"
+	AdId       = 2104402
+	CreativeId = 1773302
+	FlightId   = 2583477
+	CampaignId = 502103
+	PriorityId = 99645
+)
+
 func TestDecisionApi(t *testing.T) {
-	opts := NewClientOptions(23) // networkId
-	opts.SiteId = 667480         // siteId
+	opts := NewClientOptions(NetworkId)
+	opts.SiteId = SiteId
 	client := NewClient(opts)
 
 	placement := model.NewPlacement()
@@ -18,35 +29,39 @@ func TestDecisionApi(t *testing.T) {
 	request := model.NewDecisionRequest()
 	request.Placements = []model.Placement{placement}
 	request.Keywords = []string{"keyword1", "keyword2"}
-	request.User = model.NewUser("abc")
+	request.User = model.NewUser(UserKey)
 
 	decisions := client.Decisions()
-	response := decisions.Get(request)
+	response, err := decisions.Get(request)
 
-	if response.User.Key != "abc" {
-		t.Errorf("Invalid userKey, got: %s, want: %s", response.User.Key, "abc")
+	if err != nil {
+		t.Errorf("Error returned when fetching an ad decision: %s", err.Error())
+	}
+
+	if response.User.Key != UserKey {
+		t.Errorf("Invalid userKey, got: %s, want: %s", response.User.Key, UserKey)
 	}
 
 	decision := response.Decisions["div0"]
 
-	if *decision.AdId != 2104402 {
-		t.Errorf("Invalid adId, got: %d, want: %d", *decision.AdId, 2104402)
+	if *decision.AdId != AdId {
+		t.Errorf("Invalid adId, got: %d, want: %d", *decision.AdId, AdId)
 	}
 
-	if *decision.CreativeId != 1773302 {
-		t.Errorf("Invalid creativeId, got: %d, want: %d", *decision.CreativeId, 1773302)
+	if *decision.CreativeId != CreativeId {
+		t.Errorf("Invalid creativeId, got: %d, want: %d", *decision.CreativeId, CreativeId)
 	}
 
-	if *decision.FlightId != 2583477 {
-		t.Errorf("Invalid flightId, got: %d, want: %d", *decision.FlightId, 2583477)
+	if *decision.FlightId != FlightId {
+		t.Errorf("Invalid flightId, got: %d, want: %d", *decision.FlightId, FlightId)
 	}
 
-	if *decision.CampaignId != 502103 {
-		t.Errorf("Invalid campaignId, got: %d, want: %d", *decision.CampaignId, 502103)
+	if *decision.CampaignId != CampaignId {
+		t.Errorf("Invalid campaignId, got: %d, want: %d", *decision.CampaignId, CampaignId)
 	}
 
-	if *decision.PriorityId != 99645 {
-		t.Errorf("Invalid priorityId, got: %d, want: %d", *decision.PriorityId, 99645)
+	if *decision.PriorityId != PriorityId {
+		t.Errorf("Invalid priorityId, got: %d, want: %d", *decision.PriorityId, PriorityId)
 	}
 
 	if !strings.HasPrefix(decision.ClickUrl, "https://e-23.adzerk.net/r") {
@@ -92,13 +107,21 @@ func TestDecisionApi(t *testing.T) {
 	}
 
 	pixels := client.Pixels()
-	impResponse := pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
+	impResponse, err := pixels.Fire(NewPixelFireOptions(decision.ImpressionUrl))
+
+	if err != nil {
+		t.Errorf("Error returned when recording an impression: %s", err.Error())
+	}
 
 	if impResponse.StatusCode != 200 {
 		t.Errorf("Invalid statusCode, got: %d, want: %d", impResponse.StatusCode, 200)
 	}
 
-	clickResponse := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+	clickResponse, err := pixels.Fire(NewPixelFireOptions(decision.ClickUrl))
+
+	if err != nil {
+		t.Errorf("Error returned when recording a click: %s", err.Error())
+	}
 
 	if clickResponse.StatusCode != 302 {
 		t.Errorf("Invalid statusCode, got: %d, want: %d", clickResponse.StatusCode, 302)
@@ -111,14 +134,18 @@ func TestDecisionApi(t *testing.T) {
 }
 
 func TestUserDb(t *testing.T) {
-	opts := NewClientOptions(23) // networkId
+	opts := NewClientOptions(NetworkId)
 	client := NewClient(opts)
 
 	userDb := client.UserDb()
-	record := userDb.Read("abc")
+	record, err := userDb.Read(UserKey)
 
-	if record.Key != "abc" {
-		t.Errorf("Invalid userKey, got: %s, want: %s", record.Key, "abc")
+	if err != nil {
+		t.Errorf("Error returned when reading user record: %s", err.Error())
+	}
+
+	if record.Key != UserKey {
+		t.Errorf("Invalid userKey, got: %s, want: %s", record.Key, UserKey)
 	}
 
 	props := map[string]interface{}{
@@ -127,5 +154,9 @@ func TestUserDb(t *testing.T) {
 		"favoriteFoods":  []string{"strawberries", "chocolate"},
 	}
 
-	userDb.SetCustomProperties("abc", props)
+	err = userDb.SetCustomProperties(UserKey, props)
+
+	if err != nil {
+		t.Errorf("Error returned when setting custom properties: %s", err.Error())
+	}
 }

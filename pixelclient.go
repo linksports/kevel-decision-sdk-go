@@ -10,7 +10,7 @@ func NewPixelClient() PixelClient {
 	return PixelClient{ApiClient{}}
 }
 
-func (c *PixelClient) Fire(opts PixelFireOptions, additionalOpts ...AdditionalOptions) model.PixelFireResponse {
+func (c *PixelClient) Fire(opts PixelFireOptions, additionalOpts ...AdditionalOptions) (model.PixelFireResponse, error) {
 	if len(additionalOpts) > 0 {
 		opt := additionalOpts[0]
 

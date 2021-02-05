@@ -34,22 +34,30 @@ func NewApiClient(path string, apiKey ...string) ApiClient {
 	return apiClient
 }
 
-func (c *ApiClient) GetDecisions(req model.DecisionRequest) model.DecisionResponse {
+func (c *ApiClient) GetDecisions(req model.DecisionRequest) (model.DecisionResponse, error) {
 	body, _ := json.Marshal(req)
 	c.requestHeaders["Content-Type"] = "application/json"
-	res := c.request("POST", c.basePath, &body)
+	res, err := c.request("POST", c.basePath, &body)
 
 	defer res.Body.Close()
 
-	body, _ = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return model.DecisionResponse{}, err
+	}
+
+	body, err = ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return model.DecisionResponse{}, err
+	}
 
 	var response model.DecisionResponse
-	json.Unmarshal(body, &response)
+	err = json.Unmarshal(body, &response)
 
-	return response
+	return response, err
 }
 
-func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
+func (c *ApiClient) FirePixel(opts PixelFireOptions) (model.PixelFireResponse, error) {
 	if opts.RevenueOverride != nil {
 		c.requestHeaders["override"] = fmt.Sprintf("%f", *opts.RevenueOverride)
 	}
@@ -62,7 +70,11 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
 		c.requestHeaders["eventMultiplier"] = fmt.Sprintf("%d", *opts.EventMultiplier)
 	}
 
-	res := c.request("GET", opts.Url, nil)
+	res, err := c.request("GET", opts.Url, nil)
+
+	if err != nil {
+		return model.PixelFireResponse{}, err
+	}
 
 	var location string
 	locationHeaders := res.Header["Location"]
@@ -70,109 +82,127 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) model.PixelFireResponse {
 		location = locationHeaders[0]
 	}
 
-	return model.PixelFireResponse{res.StatusCode, location}
+	return model.PixelFireResponse{res.StatusCode, location}, nil
 }
 
-func (c *ApiClient) SetCustomProperties(networkId int, userKey string, props map[string]interface{}) {
+func (c *ApiClient) SetCustomProperties(networkId int, userKey string, props map[string]interface{}) error {
 	urlStr := fmt.Sprintf("%s/%d/custom", c.basePath, networkId)
 	body, _ := json.Marshal(props)
 	c.requestHeaders["Content-Type"] = "application/json"
-	c.request("POST", urlStr, &body)
+	_, err := c.request("POST", urlStr, &body)
+	return err
 }
 
-func (c *ApiClient) AddInterest(networkId int, userKey string, interest string) {
+func (c *ApiClient) AddInterest(networkId int, userKey string, interest string) error {
 	values := url.Values{
 		"userKey":  {userKey},
 		"interest": {interest},
 	}
 	urlStr := fmt.Sprintf("%s/%d/interest/i.gif?%s", c.basePath, networkId, values.Encode())
-	c.request("GET", urlStr, nil)
+	_, err := c.request("GET", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) AddRetargetingSegment(networkId int, userKey string, advertiserId, retargetingSegmentId int) {
+func (c *ApiClient) AddRetargetingSegment(networkId int, userKey string, advertiserId, retargetingSegmentId int) error {
 	values := url.Values{
 		"userKey": {userKey},
 	}
 	urlStr := fmt.Sprintf(
 		"%s/%d/rt/%d/%d/i.gif?%s",
 		c.basePath, networkId, advertiserId, retargetingSegmentId, values.Encode())
-	c.request("GET", urlStr, nil)
+	_, err := c.request("GET", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) Forget(networkId int, userKey string) {
+func (c *ApiClient) Forget(networkId int, userKey string) error {
 	values := url.Values{
 		"userKey": {userKey},
 	}
 	urlStr := fmt.Sprintf("%s/%d?%s", c.basePath, networkId, values.Encode())
-
-	c.request("DELETE", urlStr, nil)
+	_, err := c.request("DELETE", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) GdprConsent(networkId int, consentRequest model.ConsentRequest) {
+func (c *ApiClient) GdprConsent(networkId int, consentRequest model.ConsentRequest) error {
 	urlStr := fmt.Sprintf("%s/%d/consent", c.basePath, networkId)
 	body, _ := json.Marshal(consentRequest)
 	c.requestHeaders["Content-Type"] = "application/json"
-	c.request("POST", urlStr, &body)
-
+	_, err := c.request("POST", urlStr, &body)
+	return err
 }
 
-func (c *ApiClient) IpOverride(networkId int, userKey, ip string) {
+func (c *ApiClient) IpOverride(networkId int, userKey, ip string) error {
 	values := url.Values{
 		"userKey": {userKey},
 		"ip":      {ip},
 	}
 	urlStr := fmt.Sprintf("%s/%d/ip/i.gif?%s", c.basePath, networkId, values.Encode())
-	c.request("GET", urlStr, nil)
+	_, err := c.request("GET", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) MatchUser(networkId int, userKey string, partnerId, userId int) {
+func (c *ApiClient) MatchUser(networkId int, userKey string, partnerId, userId int) error {
 	values := url.Values{
 		"userKey":   {userKey},
 		"partnerId": {strconv.Itoa(partnerId)},
 		"userId":    {strconv.Itoa(userId)},
 	}
 	urlStr := fmt.Sprintf("%s/%d/sync/i.gif?%s", c.basePath, networkId, values.Encode())
-	c.request("GET", urlStr, nil)
+	_, err := c.request("GET", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) OptOut(networkId int, userKey string) {
+func (c *ApiClient) OptOut(networkId int, userKey string) error {
 	values := url.Values{
 		"userKey": {userKey},
 	}
 	urlStr := fmt.Sprintf("%s/%d/optout/i.gif?%s", c.basePath, networkId, values.Encode())
-	c.request("GET", urlStr, nil)
+	_, err := c.request("GET", urlStr, nil)
+	return err
 }
 
-func (c *ApiClient) ReadUser(networkId int, userKey string) model.UserRecord {
+func (c *ApiClient) ReadUser(networkId int, userKey string) (model.UserRecord, error) {
 	values := url.Values{
 		"userKey": {userKey},
 	}
 	urlStr := fmt.Sprintf("%s/%d/read?%s", c.basePath, networkId, values.Encode())
 
-	res := c.request("GET", urlStr, nil)
+	res, err := c.request("GET", urlStr, nil)
 
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return model.UserRecord{}, err
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return model.UserRecord{}, err
+	}
 
 	var record model.UserRecord
-	json.Unmarshal(body, &record)
+	err = json.Unmarshal(body, &record)
 
-	return record
+	return record, err
 }
 
-func (c *ApiClient) request(method, urlStr string, body *[]byte) *http.Response {
+func (c *ApiClient) request(method, urlStr string, body *[]byte) (*http.Response, error) {
 	var reqBody io.Reader
 
 	if body != nil {
 		reqBody = bytes.NewBuffer(*body)
 	}
 
-	req, _ := http.NewRequest(
+	req, err := http.NewRequest(
 		method,
 		urlStr,
 		reqBody,
 	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if c.apiKey != "" {
 		req.Header.Set("X-Adzerk-ApiKey", c.apiKey)
@@ -190,7 +220,7 @@ func (c *ApiClient) request(method, urlStr string, body *[]byte) *http.Response 
 			return http.ErrUseLastResponse
 		},
 	}
-	res, _ := client.Do(req)
+	res, err := client.Do(req)
 
-	return res
+	return res, err
 }
