@@ -85,7 +85,7 @@ import (
 )
 
 func main() {
-	// Demo network ID; find your own via the Adzerk UI!
+	// Demo network ID; find your own via the Kevel UI!
 	opts := kevel.NewClientOptions(23)
 	client := kevel.NewClient(opts)
 	userDb := client.UserDb()
@@ -104,7 +104,7 @@ package main
 import "github.com/linksports/kevel-decision-sdk-go"
 
 func main() {
-	// Demo network ID; find your own via the Adzerk UI!
+	// Demo network ID; find your own via the Kevel UI!
 	opts := kevel.NewClientOptions(23)
 	client := kevel.NewClient(opts)
 	userDb := client.UserDb()
@@ -127,7 +127,7 @@ package main
 import "github.com/linksports/kevel-decision-sdk-go"
 
 func main() {
-	// Demo network ID and API key; find your own via the Adzerk UI!
+	// Demo network ID and API key; find your own via the Kevel UI!
 	opts := kevel.NewClientOptions(23)
 	opts.ApiKey = "YOUR-API-KEY"
 	client := kevel.NewClient(opts)
