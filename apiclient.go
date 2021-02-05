@@ -86,7 +86,10 @@ func (c *ApiClient) FirePixel(opts PixelFireOptions) (model.PixelFireResponse, e
 }
 
 func (c *ApiClient) SetCustomProperties(networkId int, userKey string, props map[string]interface{}) error {
-	urlStr := fmt.Sprintf("%s/%d/custom", c.basePath, networkId)
+	values := url.Values{
+		"userKey": {userKey},
+	}
+	urlStr := fmt.Sprintf("%s/%d/custom?%s", c.basePath, networkId, values.Encode())
 	body, _ := json.Marshal(props)
 	c.requestHeaders["Content-Type"] = "application/json"
 	_, err := c.request("POST", urlStr, &body)
