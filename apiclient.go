@@ -39,11 +39,11 @@ func (c *ApiClient) GetDecisions(req model.DecisionRequest) (model.DecisionRespo
 	c.requestHeaders["Content-Type"] = "application/json"
 	res, err := c.request("POST", c.basePath, &body)
 
-	defer res.Body.Close()
-
 	if err != nil {
 		return model.DecisionResponse{}, err
 	}
+
+	defer res.Body.Close()
 
 	body, err = ioutil.ReadAll(res.Body)
 
@@ -172,11 +172,11 @@ func (c *ApiClient) ReadUser(networkId int, userKey string) (model.UserRecord, e
 
 	res, err := c.request("GET", urlStr, nil)
 
-	defer res.Body.Close()
-
 	if err != nil {
 		return model.UserRecord{}, err
 	}
+
+	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 
