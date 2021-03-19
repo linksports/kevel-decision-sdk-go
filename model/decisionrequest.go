@@ -16,8 +16,9 @@ type DecisionRequest struct {
 	Consent              map[string]interface{} `json:"consent"`
 	DeviceID             string                 `json:"deviceID"`
 	Parallel             bool                   `json:"parallel"`
-	IntendedLatitude     string                 `json:"intendedLatitude"`
-	IntendedLongitude    string                 `json:"intendedLongitude"`
+	IntendedLatitude     *float64               `json:"intendedLatitude"`
+	IntendedLongitude    *float64               `json:"intendedLongitude"`
+	Radius               *float64               `json:"radius"`
 	IncludeMatchedPoints bool                   `json:"includeMatchedPoints"`
 }
 
