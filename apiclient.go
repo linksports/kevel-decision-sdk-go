@@ -227,5 +227,9 @@ func (c *ApiClient) request(method, urlStr string, body *[]byte) (*http.Response
 	}
 	res, err := client.Do(req)
 
+	if res.StatusCode == 401 {
+		return res, fmt.Errorf("Unauthorized")
+	}
+
 	return res, err
 }
