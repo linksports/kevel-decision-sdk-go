@@ -27,7 +27,6 @@ func NewApiClient(path string, apiKey ...string) ApiClient {
 		apiClient.apiKey = apiKey[0]
 	}
 
-	// When the version gets bumped, ensure the version string is bumped as well
 	apiClient.requestHeaders = map[string]interface{}{
 		"User-Agent": "OpenAPI-Generator/1.0/go",
 	}
