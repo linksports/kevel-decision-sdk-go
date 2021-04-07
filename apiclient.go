@@ -27,6 +27,7 @@ func NewApiClient(path string, apiKey ...string) ApiClient {
 		apiClient.apiKey = apiKey[0]
 	}
 
+	// When the version gets bumped, ensure the version string is bumped as well
 	apiClient.requestHeaders = map[string]interface{}{
 		"User-Agent": "OpenAPI-Generator/1.0/go",
 	}
@@ -224,6 +225,10 @@ func (c *ApiClient) request(method, urlStr string, body *[]byte) (*http.Response
 		},
 	}
 	res, err := client.Do(req)
+
+	if res.StatusCode == 401 {
+		return res, fmt.Errorf("Unauthorized")
+	}
 
 	return res, err
 }
